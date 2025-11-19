@@ -3,7 +3,7 @@ import git
 import os
 import shutil
 from art import *
-
+import sys
 
 # declare constants
 repo_addr = 'https://github.com/xHeXifx/LANControl.git'
@@ -14,13 +14,18 @@ tmp_dir = os.path.join(current_dir, "tmp")
 def pull_repo(repo, dir):
     if os.path.isdir(tmp_dir):
         print(f"Removing folder '{tmp_dir}' as it already exists.")
-        shutil.rmtree(tmp_dir)
+        try:
+            shutil.rmtree(tmp_dir)
+        except PermissionError as pe:
+            print('Failed to remove the tmp directory due to permissions. Please delete manually.')
+            sys.exit()
     try:
         print(f'Cloning repo: {repo}')
         # use gitpython to clone the repo easily
         repo = git.Repo.clone_from(repo, dir)
     except Exception as e:
         print(f"Error pulling repo, attempt a fix and re-run script.\n{e}")
+        sys.exit()
 
 def copynew():
     # variables for new file paths for shutil
@@ -35,10 +40,15 @@ def copynew():
         print("Successfully copied over new main.py, index and VERSION")
     except Exception as e:
         print(f"Error copying new files from temp.\n{e}")
+        sys.exit()
 
 def removetmp():
     print("Cleaning up ...")
-    shutil.rmtree(tmp_dir)
+    try:
+        shutil.rmtree(tmp_dir)
+    except PermissionError as pe:
+        print('Failed to remove the tmp directory due to permissions. Please delete manually.')
+        sys.exit()
 
 def getVer():
     # make gist api url using gistid and return it
@@ -51,6 +61,7 @@ def getVer():
             return version
         else:
             print(f'Failed to fetch version data from gist: {res.status_code}')
+            sys.exit()
 
 
 if __name__ == '__main__':

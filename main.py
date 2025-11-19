@@ -51,7 +51,7 @@ def newVerQuery():
                 logger.info("[UPDATER] You aren't on the latest version! Showing popup.")
                 return True
             else:
-                logger.info('[UPDATER] All up to date 😋')
+                logger.info('[UPDATER] All up to date')
                 return False
         else:
             logger.error("[UPDATER] Failed to fetch version from VERSION file. Does it exist?")

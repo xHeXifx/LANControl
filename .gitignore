@@ -179,3 +179,4 @@ cython_debug/
 .cursorindexingignore
 /.vscode
 restshutdown.log
+/tmp
