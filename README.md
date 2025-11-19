@@ -57,4 +57,7 @@ Structure looks as follows:
 #### Python Modules
 [discord-webhook](https://pypi.org/project/discord-webhook/)   
 [Flask](https://pypi.org/project/Flask/)  
-[python-dotenv](https://pypi.org/project/python-dotenv/) 
+[python-dotenv](https://pypi.org/project/python-dotenv/)  
+[art](https://pypi.org/project/art/)  
+[GitPython](https://pypi.org/project/GitPython/)  
+[requests](https://pypi.org/project/requests/)
