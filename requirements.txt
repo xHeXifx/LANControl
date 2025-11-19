@@ -1,0 +1,6 @@
+discord-webhook
+flask
+python-dotenv
+art
+GitPython
+requests

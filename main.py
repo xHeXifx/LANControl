@@ -5,6 +5,13 @@ from datetime import datetime
 import socket
 import time
 import logging
+from dotenv import load_dotenv
+import sys
+import tkinter as tk
+from tkinter import messagebox
+import requests
+
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -19,8 +26,51 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+WEBHOOK_URL = os.getenv('WEBHOOK_URL')
+PORT = os.getenv('port')
+simpleLogLoc = os.getenv('simpleLog')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
 logger.info("Flask app started")
+
+def newVerQuery():
+    req = f'https://api.github.com/gists/f8291a771e19ae6fca1107a4657fc70e'
+    res = requests.get(req)
+    if res.status_code == 200:
+        gdata = res.json()
+        for filename, file_info in gdata["files"].items():
+            latestVersion = float(file_info["content"])
+        
+        if os.path.exists(os.path.join(current_dir, 'VERSION')):
+            with open(os.path.join(current_dir, 'VERSION'), 'r') as f:
+                currentVersion = float(f.read())
+                f.close()
+            
+            if currentVersion < latestVersion:
+                logger.info("[UPDATER] You aren't on the latest version! Showing popup.")
+                return True
+            else:
+                logger.info('[UPDATER] All up to date 😋')
+                return False
+        else:
+            logger.error("[UPDATER] Failed to fetch version from VERSION file. Does it exist?")
+    else:
+        logger.error(f'[UPDATER] Failed to fetch version data from gist: {res.status_code}')
+
+def askContinueWithOldVer():
+    root = tk.Tk()
+    root.withdraw()
+
+    result = messagebox.askyesno(
+        "LANControl Updater",
+        "Wait! A new version of LANControl is available.\n\n"
+        "Run updater.py to automatically update to the newest version.\n\n"
+        "Do you want to continue with the outdated version?"
+    )
+
+    root.destroy()
+    return result
 
 def wait_for_internet(host="8.8.8.8", port=53, timeout=3):
     logger.info("Checking internet connection")
@@ -84,7 +134,7 @@ def shutdown():
         webhook.execute()
         logger.info("Discord notification sent")
         
-        with open(r'C:\Users\jdglo\Document\Documents\shutdownlog.txt', 'w') as f:
+        with open(rf'{simpleLogLoc}', 'w') as f:
             f.write(f'{datetime.now()} | /api/shutdown called from {client_ip}. Headers: {user_agent}')
 
         logger.info("Shutdown initiated")
@@ -104,14 +154,14 @@ def abortShutdown():
     client_ip = request.remote_addr
     user_agent = request.headers.get('User-Agent')
     try:
-        webhook = DiscordWebhook(url='https://discord.com/api/webhooks/1327708958584213574/8JbS067SNiEq9aT_m7rzWgHOc2MOyBISyDzK4R6qxwza851CPWiuSW9x5Z2rfjcfzUDm', 
+        webhook = DiscordWebhook(url=WEBHOOK_URL,
                                 content=f"Shutdown aborted. Called from {client_ip}")
         
         logger.info('Aborting shutdown')
         os.system('shutdown /a')
         webhook.execute()
         logger.info('Discord abort notifaction sent.')
-        with open(r'C:\Users\jdglo\Document\Documents\shutdownlog.txt', 'w') as f:
+        with open(rf'{simpleLogLoc}', 'w') as f:
             f.write(f'{datetime.now()} | /api/abortshutdown called from {client_ip}. Headers: {user_agent}')
         logger.info('Shutdown aborted.')
         return jsonify({
@@ -128,15 +178,31 @@ def abortShutdown():
 logger.info("Initializing application")
 wait_for_internet()
 
-localip = get_local_ip()
-webhook = DiscordWebhook(url='https://discord.com/api/webhooks/1327708958584213574/8JbS067SNiEq9aT_m7rzWgHOc2MOyBISyDzK4R6qxwza851CPWiuSW9x5Z2rfjcfzUDm', 
-                          content=f"System online. Local IP: {localip}")
 
-try:
-    webhook.execute()
-    logger.info("Discord startup notification sent")
-except Exception:
-    logger.info("Failed to send Discord notification")
+if __name__ == '__main__':
+    try:
+        if newVerQuery():
+            if askContinueWithOldVer():
+                logger.info('Running on outdated version.')
+                pass
+            else:
+                logger.info('Exiting to update.')
+                sys.exit(0)
 
-logger.info("Starting server on 0.0.0.0:6060")
-app.run(debug=False, host='0.0.0.0', port='6060')
+            localip = get_local_ip()
+            webhook = DiscordWebhook(url=WEBHOOK_URL, 
+                                    content=f"System online. Local IP: {localip}")
+
+            try:
+                webhook.execute()
+                logger.info("Discord startup notification sent")
+            except Exception:
+                logger.info("Failed to send Discord notification")
+
+            logger.info(f"Starting server on 0.0.0.0:{PORT}")
+            app.run(debug=False, host='0.0.0.0', port=PORT)
+    except Exception as e:
+        logger.error(f"[ERROR] Failed to start Flask: {e}")
+
+    finally:
+        logger.info("Flask server stopped.")
