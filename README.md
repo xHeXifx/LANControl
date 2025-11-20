@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="/static/images/logo.png" alt="LANControl Logo" width="200">
+  <img src="/static/images/logo.png" alt="LANControl Logo">
   
   <p><em>LANControl is a simple python flask script that creates API routes allowing you to interact with your system remotely.</em></p>
   
