@@ -180,3 +180,4 @@ cython_debug/
 /.vscode
 restshutdown.log
 /tmp
+.DS_Store
