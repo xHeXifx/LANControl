@@ -61,7 +61,7 @@ body:
     id: logs
     attributes:
       label: Relevant Logs
-      description: Paste the section of restshutdown.log here containing the issue:
+      description: Paste the section of restshutdown.log here containing the issue
       render: shell
 
   - type: checkboxes
