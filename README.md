@@ -18,9 +18,10 @@
 
 ## How to setup
 
-1. Run ```pip install -r requirements.txt```
-2. Fill in the values in .env
-3. Run main.py, if you want the window to be hidden change extension to .pyw
+1. Run ```git pull https://github.com/xHeXifx/lancontrol``` or download from github site
+2. Run ```pip install -r requirements.txt```
+3. Fill in the values in .env
+4. Run main.py, if you want the window to be hidden change extension to .pyw
 
 For ease of use i made an apple shortcut to call the routes, using mDNS over IPV4 so the shortcut (and all other calls) can use `http://lancontrol.local:{port}`. You can import it using the [LANControl.shortcut](LANControl.shortcut) file.
 
