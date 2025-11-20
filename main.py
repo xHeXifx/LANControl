@@ -16,6 +16,7 @@ import GPUtil
 from io import BytesIO
 from PIL import Image
 import mss
+from functools import wraps
 #endregion
 
 load_dotenv()
@@ -143,7 +144,22 @@ def fakeappletouchprec():
     return
 #endregion
 
+# header checking (simple auth rlly.)
+def require_lancontrol(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        header = request.headers.get("LANControl")
+        if header != "True":
+            logger.error('User attempted to call route without LANControl header.')
+            return jsonify({
+                "success": False,
+                "data": "invalid header"
+            })
+        return f(*args, **kwargs)
+    return wrapper
+
 @app.route('/api/shutdown')
+@require_lancontrol
 def shutdown():
     client_ip = request.remote_addr
     user_agent = request.headers.get('User-Agent')
@@ -174,6 +190,7 @@ def shutdown():
         })
     
 @app.route('/api/abortshutdown')
+@require_lancontrol
 def abortShutdown():
     client_ip = request.remote_addr
     user_agent = request.headers.get('User-Agent')
@@ -201,6 +218,7 @@ def abortShutdown():
         })
 
 @app.route('/api/stats')
+@require_lancontrol
 def stats():
     client_ip = request.remote_addr
     user_agent = request.headers.get('User-Agent')
@@ -323,6 +341,7 @@ def stats():
     })
 
 @app.route("/api/screenshot", methods=["GET"])
+@require_lancontrol
 def screenshot():
     try:
         with mss.mss() as sct:

@@ -8,7 +8,11 @@ LANControl is a simple python flask script that creates API routes allowing you 
 2. Fill in the values in .env
 3. Run main.py, if you want the window to be hidden change extension to .pyw
 
-For ease of use i made an apple shortcut to call the routes, you'll have to manually fill in the IP address provided by the webhook message on startup. You can find that [here](https://www.icloud.com/shortcuts/f084698af8c843ab85a449b28afb6020)
+For ease of use i made an apple shortcut to call the routes, you'll have to manually fill in the IP address provided by the webhook message on startup. You can import it using the [LANControl.shortcut](LANControl.shortcut) file.
+
+## How to use
+
+Pretty simple, call a GET request on one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For futher information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
 
 
 ## Avalible Routes
