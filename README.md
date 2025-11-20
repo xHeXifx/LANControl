@@ -22,11 +22,11 @@
 2. Fill in the values in .env
 3. Run main.py, if you want the window to be hidden change extension to .pyw
 
-For ease of use i made an apple shortcut to call the routes, you'll have to manually fill in the IP address provided by the webhook message on startup. You can import it using the [LANControl.shortcut](LANControl.shortcut) file.
+For ease of use i made an apple shortcut to call the routes, using mDNS over IPV4 so the shortcut (and all other calls) can use `http://lancontrol.local:{port}`. You can import it using the [LANControl.shortcut](LANControl.shortcut) file.
 
 ## How to use
 
-Pretty simple, call a GET request on one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For futher information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
+Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For futher information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
 
 
 ## Avalible Routes
@@ -138,4 +138,5 @@ Parsing data from this is quite difficult to say the least.. below is the struct
 [psutil](https://pypi.org/project/psutil/)  
 [GPUtil](https://pypi.org/project/GPUtil/)  
 [pillow](https://pypi.org/project/pillow)  
-[mss](https://pypi.org/project/mss)
+[mss](https://pypi.org/project/mss)  
+[zeroconf](https://pypi.org/project/zeroconf)

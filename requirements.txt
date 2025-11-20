@@ -8,3 +8,4 @@ psutil
 GPUtil
 pillow
 mss
+zeroconf

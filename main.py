@@ -17,6 +17,7 @@ from io import BytesIO
 from PIL import Image
 import mss
 from functools import wraps
+from zeroconf import Zeroconf, ServiceInfo
 #endregion
 
 load_dotenv()
@@ -34,8 +35,12 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+SERVICE_TYPE = "_lancontrol._tcp.local."
+SERVICE_NAME = "LANControl._lancontrol._tcp.local."
+
+
 WEBHOOK_URL = os.getenv('WEBHOOK_URL')
-PORT = os.getenv('port')
+SERVICE_PORT = int(os.getenv('port'))
 simpleLogLoc = os.getenv('simpleLog')
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -93,18 +98,38 @@ def wait_for_internet(host="8.8.8.8", port=53, timeout=3):
             print("No connection... retrying in 2 seconds")
             time.sleep(2)
 
-def get_local_ip():
+def get_local_ip(noprint=False):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(("8.8.8.8", 80))
         local_ip = s.getsockname()[0]
-        logger.info(f"Local IP: {local_ip}")
+        if noprint == False:
+            logger.info(f"Local IP: {local_ip}")
         return local_ip
     except Exception:
         logger.info("Failed to get local IP")
         return "unknown"
     finally:
         s.close()
+
+def register_mdns_service():
+    ip = get_local_ip(noprint=True)
+    ip_bytes = socket.inet_aton(ip)
+
+    info = ServiceInfo(
+        SERVICE_TYPE,
+        SERVICE_NAME,
+        addresses=[ip_bytes],
+        port=SERVICE_PORT,
+        properties={b"path": b"/"},
+        server="lancontrol.local.",
+    )
+
+    zc = Zeroconf()
+    zc.register_service(info)
+    logger.info(f"[mDNS] Advertising LANControl at http://lancontrol.local:{SERVICE_PORT}")
+
+    return zc, info
 
 def simpleLog(text):
     with open(rf'{simpleLogLoc}', 'a') as f:
@@ -142,15 +167,15 @@ def handle_any_error(e):
 # The 3 files browsers (apple for the last 2) try to fetch dont exist so flood the console with 404 when it cant find them.
 @app.route('/favicon.ico')
 def fakefavicon():
-    return
+    return ('', 204)
 
 @app.route('/apple-touch-icon.png')
 def fakeappletouch():
-    return
+    return ('', 204)
 
 @app.route('/apple-touch-icon-precompressed.png')
 def fakeappletouchprec():
-    return
+    return ('', 204)
 #endregion
 
 # header checking (simple auth rlly.)
@@ -391,6 +416,8 @@ wait_for_internet()
 
 
 if __name__ == '__main__':
+    zc = None
+    info = None
     try:
         if newVerQuery():
             if askContinueWithOldVer():
@@ -410,10 +437,19 @@ if __name__ == '__main__':
         except Exception:
             logger.info("Failed to send Discord notification")
         
-        logger.info(f"Starting server on 0.0.0.0:{PORT}")
-        app.run(debug=False, host='0.0.0.0', port=PORT)
+        logger.info(f"Starting server on 0.0.0.0:{SERVICE_PORT}")
+        zc, info = register_mdns_service()
+        app.run(debug=False, host='0.0.0.0', port=SERVICE_PORT)
     except Exception as e:
         logger.error(f"[ERROR] Failed to start Flask: {e}")
 
     finally:
+        if zc is not None and info is not None:
+            try:
+                logger.info("[mDNS] Shutting down Zeroconf…")
+                zc.unregister_service(info)
+            except Exception as e:
+                logger.error(f"[WARN] Failed to unregister mDNS service: {e}")
+            finally:
+                zc.close()
         logger.info("Flask server stopped.")
