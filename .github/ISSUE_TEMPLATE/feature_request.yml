@@ -1,0 +1,90 @@
+name: Feature Request
+description: Suggest a new feature or improvement for LANControl.
+labels: [enhancement]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 LANControl Feature Request
+        Thanks for wanting to improve LANControl!  
+        Please provide as much detail as possible.
+
+  - type: input
+    id: title
+    attributes:
+      label: Feature Title
+      description: A short name describing your feature.
+      placeholder: "Example: Add /api/screenshot route with PNG output"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should this feature do?
+      description: Describe the feature in detail — behaviour, use case, and what problem it solves.
+      placeholder: |
+        Example:
+        I want a route like `/api/volume/set?level=50` that allows LANControl to change the system volume.
+        This would allow automations in Apple Shortcuts to adjust audio levels.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: Why is this important? (optional)
+      description: Explain how this improves LANControl. Helpful for prioritisation.
+      placeholder: |
+        Example:
+        - Expands remote control capabilities
+        - Useful for home automation (Shortcuts / Python / Web integrations)
+        - Common request from users
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Relevant platforms
+      description: Which operating systems should this feature support?
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - All Platforms
+        - Not OS-dependent (API-only)
+    validations:
+      required: true
+
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API Route (optional)
+      description: Suggest example endpoint(s) or JSON structures.
+      placeholder: |
+        Example:
+        Route: /api/screen/brightness
+        Method: GET
+        Returns:
+        {
+          "success": true,
+          "data": {
+            "brightness_percent": 75
+          }
+        }
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Anything else? Links, screenshots, mockups, similar software, etc.
+      placeholder: "Add extra details if needed."
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have checked that this feature is not already implemented or requested.
+          required: true
