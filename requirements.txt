@@ -4,3 +4,5 @@ python-dotenv
 art
 GitPython
 requests
+psutil
+GPUtil

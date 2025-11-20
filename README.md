@@ -17,6 +17,7 @@ For ease of use i made an apple shortcut to call the routes, you'll have to manu
 |----------|--------|-------------|
 | `/api/shutdown` | GET | Schedule system shutdown in 20 seconds |
 | `/api/abortshutdown` | GET | Cancel a scheduled shutdown |
+| `/api/stats` | GET | Get (most) system statistics |
 
 ## Notifactions and logging
 
@@ -45,6 +46,60 @@ Structure looks as follows:
 - `success`: Boolean indicating if the operation completed successfully
 - `data`: String containing status message or error information
 
+### /api/stats (yes this deserves its own section)
+Parsing data from this is quite difficult to say the least.. below is the structure:
+
+```json
+{
+  "success": "true/false (Boolean showing whether the request succeeded)",
+
+  "data": {
+    "cpu_usage_percent": "{percentage of current CPU usage}",
+
+    "gpu": [
+      {
+        "id": "{GPU device ID}",
+        "name": "{GPU model name, e.g. 'NVIDIA GTX 1650'}",
+        "load_percent": "{current GPU load percentage}",
+        "memory_used_mb": "{VRAM currently used in MB}",
+        "memory_total_mb": "{total VRAM available in MB}",
+        "temperature_c": "{GPU temperature in Celsius}"
+      }
+      /* ...repeat for multiple GPUs if present... */
+    ],
+
+    "ram": {
+      "total_gb": "{total system memory in gigabytes}",
+      "used_gb": "{amount of RAM currently used in gigabytes}",
+      "available_gb": "{RAM available for use}",
+      "percent_used": "{percentage of RAM currently used}"
+    },
+
+    "storage": [
+      {
+        "device": "{device path, e.g. /dev/disk3s1s1}",
+        "fstype": "{filesystem type, e.g. apfs}",
+        "mountpoint": "{mount location, e.g. /}",
+        "total_gb": "{total disk capacity}",
+        "used_gb": "{used space on the disk}",
+        "free_gb": "{remaining free space}",
+        "percent_used": "{percentage used}"
+      }
+      /* ...repeat for each volume... */
+    ],
+
+    "uptime": {
+      "boot_time": "{timestamp when the system booted}",
+      "uptime_days": "{total days system has been running}",
+      "uptime_hours": "{hours past the full days}",
+      "uptime_minutes": "{minutes past the full hours}",
+      "uptime_total_seconds": "{total uptime in seconds}"
+    }
+  }
+}
+
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -60,4 +115,6 @@ Structure looks as follows:
 [python-dotenv](https://pypi.org/project/python-dotenv/)  
 [art](https://pypi.org/project/art/)  
 [GitPython](https://pypi.org/project/GitPython/)  
-[requests](https://pypi.org/project/requests/)
+[requests](https://pypi.org/project/requests/)  
+[psutil](https://pypi.org/project/psutil/)
+[GPUtil](https://pypi.org/project/GPUtil/)

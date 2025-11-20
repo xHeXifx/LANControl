@@ -1,3 +1,4 @@
+#region Imports
 from flask import Flask, render_template, jsonify, request
 import os
 from discord_webhook import DiscordWebhook
@@ -10,6 +11,9 @@ import sys
 import tkinter as tk
 from tkinter import messagebox
 import requests
+import psutil
+import GPUtil
+#endregion
 
 load_dotenv()
 
@@ -107,7 +111,7 @@ def renderHome():
 @app.errorhandler(404)
 def internal_server_error(e):
     logger.info(f"404 from {request.remote_addr}")
-    return render_template('error.html'), 404
+    return
 
 @app.errorhandler(Exception)
 def handle_any_error(e):
@@ -116,6 +120,20 @@ def handle_any_error(e):
         "success": False,
         "error": "Server error occurred. Please try again later."
     }), 500
+
+# The following 3 routes are here to avoid console flooding if the address is opened on a webpage.
+# The 3 files browsers (apple for the last 2) try to fetch dont exist so flood the console with 404 when it cant find them.
+@app.route('/favicon.ico')
+def fakefavicon():
+    return
+
+@app.route('/apple-touch-icon.png')
+def fakeappletouch():
+    return
+
+@app.route('/apple-touch-icon-precompressed.png')
+def fakeappletouchprec():
+    return
 #endregion
 
 @app.route('/api/shutdown')
@@ -134,7 +152,7 @@ def shutdown():
         webhook.execute()
         logger.info("Discord notification sent")
         
-        with open(rf'{simpleLogLoc}', 'w') as f:
+        with open(rf'{simpleLogLoc}', 'a') as f:
             f.write(f'{datetime.now()} | /api/shutdown called from {client_ip}. Headers: {user_agent}')
 
         logger.info("Shutdown initiated")
@@ -161,7 +179,7 @@ def abortShutdown():
         os.system('shutdown /a')
         webhook.execute()
         logger.info('Discord abort notifaction sent.')
-        with open(rf'{simpleLogLoc}', 'w') as f:
+        with open(rf'{simpleLogLoc}', 'a') as f:
             f.write(f'{datetime.now()} | /api/abortshutdown called from {client_ip}. Headers: {user_agent}')
         logger.info('Shutdown aborted.')
         return jsonify({
@@ -174,6 +192,126 @@ def abortShutdown():
             "success": False,
             "data": f"Failed to abort shutdown: {e}"
         })
+
+@app.route('/api/stats')
+def stats():
+    logger.info("Collecting system statistics, this may take a while..")
+
+    cpu_ok = gpu_ok = drives_ok = ram_ok = uptime_ok = False
+
+    # ---------- CPU ----------
+    CPUUsage = 'unknown'
+    try:
+        CPUUsage = psutil.cpu_percent(interval=1)
+        cpu_ok = True
+        logger.info(f"CPU usage collected: {CPUUsage}%")
+    except Exception as e:
+        logger.error(f"Error collecting CPU usage: {e}")
+
+    # ---------- GPU ----------
+    gpu_list = 'unknown'
+    try:
+        gpus = GPUtil.getGPUs()
+        tmp_gpu_list = []
+        for gpu in gpus:
+            tmp_gpu_list.append({
+                "id": gpu.id,
+                "name": gpu.name,
+                "load_percent": gpu.load * 100,
+                "memory_used_mb": gpu.memoryUsed,
+                "memory_total_mb": gpu.memoryTotal,
+                "temperature_c": gpu.temperature
+            })
+        gpu_list = tmp_gpu_list
+        gpu_ok = True
+        logger.info(f"GPU usage collected for {len(gpu_list)} GPU(s)")
+    except Exception as e:
+        logger.error(f"Error collecting GPU usage: {e}")
+
+    # ---------- Storage / Drives ----------
+    drives = 'unknown'
+    try:
+        tmp_drives = []
+        for part in psutil.disk_partitions(all=False):
+            if "cdrom" in part.opts or part.fstype == "":
+                continue
+            try:
+                usage = psutil.disk_usage(part.mountpoint)
+            except PermissionError:
+                # Skip partitions we can't read
+                continue
+
+            tmp_drives.append({
+                "device": part.device,
+                "mountpoint": part.mountpoint,
+                "fstype": part.fstype,
+                "total_gb": round(usage.total / (1024**3), 2),
+                "used_gb": round(usage.used / (1024**3), 2),
+                "free_gb": round(usage.free / (1024**3), 2),
+                "percent_used": usage.percent,
+            })
+        drives = tmp_drives
+        drives_ok = True
+        logger.info(f"Storage usage collected for {len(drives)} drive(s)")
+    except Exception as e:
+        logger.error(f"Error collecting storage usage: {e}")
+
+    # ---------- RAM ----------
+    RAMUsage = 'unknown'
+    try:
+        vmem = psutil.virtual_memory()
+        RAMUsage = {
+            "total_gb": round(vmem.total / (1024**3), 2),
+            "used_gb": round((vmem.total - vmem.available) / (1024**3), 2),
+            "available_gb": round(vmem.available / (1024**3), 2),
+            "percent_used": vmem.percent,
+        }
+        ram_ok = True
+        logger.info("RAM usage collected")
+    except Exception as e:
+        logger.error(f"Error collecting RAM usage: {e}")
+
+    # ---------- Uptime ----------
+    uptime = 'unknown'
+    try:
+        boot_ts = psutil.boot_time()
+        boot_time = datetime.fromtimestamp(boot_ts)
+        now = datetime.now()
+        delta = now - boot_time
+
+        days = delta.days
+        seconds = delta.seconds
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+
+        uptime = {
+            "boot_time": boot_time.strftime("%d-%m-%Y %H:%M:%S"),
+            "uptime_days": days,
+            "uptime_hours": hours,
+            "uptime_minutes": minutes,
+            "uptime_total_seconds": int(delta.total_seconds())
+        }
+        uptime_ok = True
+        logger.info("System uptime collected")
+    except Exception as e:
+        logger.error(f"Error collecting system uptime: {e}")
+
+    success = any([cpu_ok, gpu_ok, drives_ok, ram_ok, uptime_ok])
+
+    data = {
+        "cpu_usage_percent": CPUUsage,
+        "gpu": gpu_list,
+        "storage": drives,
+        "ram": RAMUsage,
+        "uptime": uptime,
+    }
+
+    return jsonify({
+        "success": success,
+        "data": data
+    })
+
+
 
 logger.info("Initializing application")
 wait_for_internet()
@@ -193,14 +331,14 @@ if __name__ == '__main__':
             webhook = DiscordWebhook(url=WEBHOOK_URL, 
                                     content=f"System online. Local IP: {localip}")
 
-            try:
-                webhook.execute()
-                logger.info("Discord startup notification sent")
-            except Exception:
-                logger.info("Failed to send Discord notification")
-
-            logger.info(f"Starting server on 0.0.0.0:{PORT}")
-            app.run(debug=False, host='0.0.0.0', port=PORT)
+        try:
+            webhook.execute()
+            logger.info("Discord startup notification sent")
+        except Exception:
+            logger.info("Failed to send Discord notification")
+        
+        logger.info(f"Starting server on 0.0.0.0:{PORT}")
+        app.run(debug=False, host='0.0.0.0', port=PORT)
     except Exception as e:
         logger.error(f"[ERROR] Failed to start Flask: {e}")
 
