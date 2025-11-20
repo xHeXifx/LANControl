@@ -110,6 +110,15 @@ def simpleLog(text):
     with open(rf'{simpleLogLoc}', 'a') as f:
         f.write(text)
 
+def sendWebhook(text):
+    webhook = DiscordWebhook(url=WEBHOOK_URL, 
+                            content=text)
+
+    try:
+        webhook.execute()
+    except Exception as e:
+        logger.error(f'Failed to send webhook response: {e}')
+
 #region Error Handlers
 @app.route('/')
 def renderHome():
@@ -166,13 +175,11 @@ def shutdown():
     logger.info(f"SHUTDOWN requested from {client_ip}")
     
     try:
-        webhook = DiscordWebhook(url='https://discord.com/api/webhooks/1327708958584213574/8JbS067SNiEq9aT_m7rzWgHOc2MOyBISyDzK4R6qxwza851CPWiuSW9x5Z2rfjcfzUDm', 
-                                content=f"System shutdown called from {client_ip}")
+        sendWebhook(f"System shutdown called from {client_ip}")
         
         logger.info("Executing shutdown")
         os.system('shutdown /s /t 20')
-        
-        webhook.execute()
+
         logger.info("Discord notification sent")
         
         simpleLog(f'{datetime.now()} | /api/shutdown called from {client_ip}. Headers: {user_agent}')
@@ -195,12 +202,10 @@ def abortShutdown():
     client_ip = request.remote_addr
     user_agent = request.headers.get('User-Agent')
     try:
-        webhook = DiscordWebhook(url=WEBHOOK_URL,
-                                content=f"Shutdown aborted. Called from {client_ip}")
+        sendWebhook(f"Shutdown aborted. Called from {client_ip}")
         
         logger.info('Aborting shutdown')
         os.system('shutdown /a')
-        webhook.execute()
         
         logger.info('Discord abort notifaction sent.')
         simpleLog(f'{datetime.now()} | /api/abortshutdown called from {client_ip}. Headers: {user_agent}')
@@ -225,6 +230,8 @@ def stats():
     logger.info(f"System stats requested from {client_ip}")
     logger.info("Collecting system statistics, this may take a while..")
     simpleLog(f'{datetime.now()} | /api/stats called from {client_ip}. Headers: {user_agent}')
+
+    sendWebhook(f"User called /api/stats at {request.remote_addr}")
 
     cpu_ok = gpu_ok = drives_ok = ram_ok = uptime_ok = False
 
