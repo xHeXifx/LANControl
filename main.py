@@ -102,6 +102,10 @@ def get_local_ip():
     finally:
         s.close()
 
+def simpleLog(text):
+    with open(rf'{simpleLogLoc}', 'a') as f:
+        f.write(text)
+
 #region Error Handlers
 @app.route('/')
 def renderHome():
@@ -152,8 +156,7 @@ def shutdown():
         webhook.execute()
         logger.info("Discord notification sent")
         
-        with open(rf'{simpleLogLoc}', 'a') as f:
-            f.write(f'{datetime.now()} | /api/shutdown called from {client_ip}. Headers: {user_agent}')
+        simpleLog(f'{datetime.now()} | /api/shutdown called from {client_ip}. Headers: {user_agent}')
 
         logger.info("Shutdown initiated")
         return jsonify({
@@ -178,10 +181,11 @@ def abortShutdown():
         logger.info('Aborting shutdown')
         os.system('shutdown /a')
         webhook.execute()
+        
         logger.info('Discord abort notifaction sent.')
-        with open(rf'{simpleLogLoc}', 'a') as f:
-            f.write(f'{datetime.now()} | /api/abortshutdown called from {client_ip}. Headers: {user_agent}')
+        simpleLog(f'{datetime.now()} | /api/abortshutdown called from {client_ip}. Headers: {user_agent}')
         logger.info('Shutdown aborted.')
+        
         return jsonify({
             "success": True,
             "data": "Shutdown aborted."
@@ -195,7 +199,11 @@ def abortShutdown():
 
 @app.route('/api/stats')
 def stats():
+    client_ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent')
+    logger.info(f"System stats requested from {client_ip}")
     logger.info("Collecting system statistics, this may take a while..")
+    simpleLog(f'{datetime.now()} | /api/stats called from {client_ip}. Headers: {user_agent}')
 
     cpu_ok = gpu_ok = drives_ok = ram_ok = uptime_ok = False
 
@@ -327,8 +335,8 @@ if __name__ == '__main__':
                 logger.info('Exiting to update.')
                 sys.exit(0)
 
-            localip = get_local_ip()
-            webhook = DiscordWebhook(url=WEBHOOK_URL, 
+        localip = get_local_ip()
+        webhook = DiscordWebhook(url=WEBHOOK_URL, 
                                     content=f"System online. Local IP: {localip}")
 
         try:
