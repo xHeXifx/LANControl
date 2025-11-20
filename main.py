@@ -1,5 +1,5 @@
 #region Imports
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_file
 import os
 from discord_webhook import DiscordWebhook
 from datetime import datetime
@@ -13,6 +13,9 @@ from tkinter import messagebox
 import requests
 import psutil
 import GPUtil
+from io import BytesIO
+from PIL import Image
+import mss
 #endregion
 
 load_dotenv()
@@ -318,6 +321,38 @@ def stats():
         "success": success,
         "data": data
     })
+
+@app.route("/api/screenshot", methods=["GET"])
+def screenshot():
+    try:
+        with mss.mss() as sct:
+            monitor = sct.monitors[0]
+            screenshot = sct.grab(monitor)
+
+            img = Image.frombytes(
+                "RGB",
+                screenshot.size,
+                screenshot.bgra,
+                "raw",
+                "BGRX"
+            )
+
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            mimetype="image/png",
+            as_attachment=False,
+            download_name="screenshot.png"
+        )
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
 
 
 

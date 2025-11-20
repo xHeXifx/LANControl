@@ -18,6 +18,7 @@ For ease of use i made an apple shortcut to call the routes, you'll have to manu
 | `/api/shutdown` | GET | Schedule system shutdown in 20 seconds |
 | `/api/abortshutdown` | GET | Cancel a scheduled shutdown |
 | `/api/stats` | GET | Get (most) system statistics |
+| `/api/screenshot` | GET | Get a full screenshot from your PC |
 
 ## Notifactions and logging
 
@@ -117,4 +118,6 @@ Parsing data from this is quite difficult to say the least.. below is the struct
 [GitPython](https://pypi.org/project/GitPython/)  
 [requests](https://pypi.org/project/requests/)  
 [psutil](https://pypi.org/project/psutil/)  
-[GPUtil](https://pypi.org/project/GPUtil/)
+[GPUtil](https://pypi.org/project/GPUtil/)  
+[pillow](https://pypi.org/project/pillow)  
+[mss](https://pypi.org/project/mss)

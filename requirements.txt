@@ -6,3 +6,5 @@ GitPython
 requests
 psutil
 GPUtil
+pillow
+mss
