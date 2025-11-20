@@ -116,5 +116,5 @@ Parsing data from this is quite difficult to say the least.. below is the struct
 [art](https://pypi.org/project/art/)  
 [GitPython](https://pypi.org/project/GitPython/)  
 [requests](https://pypi.org/project/requests/)  
-[psutil](https://pypi.org/project/psutil/)
+[psutil](https://pypi.org/project/psutil/)  
 [GPUtil](https://pypi.org/project/GPUtil/)
