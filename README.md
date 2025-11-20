@@ -1,6 +1,20 @@
-# LANControl
-
-LANControl is a simple python flask script that creates API routes allowing you to interact with your system remotely.
+<div align="center">
+  <img src="/static/images/logo.png" alt="LANControl Logo" width="200">
+  
+  <p><em>LANControl is a simple python flask script that creates API routes allowing you to interact with your system remotely.</em></p>
+  
+  <p>
+    <a href="https://www.buymeacoffee.com/hexif">
+      <img style="border-radius: 20px;" src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee">
+    </a>
+    <a href="https://ko-fi.com/hexif">
+      <img style="border-radius: 20px;" src="https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi">
+    </a>
+    <a href="https://hexif.vercel.app">
+      <img style="border-radius: 20px;" src="https://img.shields.io/badge/Website-4285F4?style=for-the-badge&logo=internetexplorer&logoColor=white" alt="Website">
+    </a>
+  </p>
+</div>
 
 ## How to setup
 
