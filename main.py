@@ -227,7 +227,6 @@ def abortShutdown():
 def stats():
     client_ip = request.remote_addr
     user_agent = request.headers.get('User-Agent')
-    logger.info(f"System stats requested from {client_ip}")
     logger.info("Collecting system statistics, this may take a while..")
     simpleLog(f'{datetime.now()} | /api/stats called from {client_ip}. Headers: {user_agent}')
 
@@ -350,6 +349,11 @@ def stats():
 @app.route("/api/screenshot", methods=["GET"])
 @require_lancontrol
 def screenshot():
+    client_ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent')
+    simpleLog(f'{datetime.now()} | /api/screenshot called from {client_ip}. Headers: {user_agent}')
+    sendWebhook(f'{client_ip} took a screenshot.')
+    
     try:
         with mss.mss() as sct:
             monitor = sct.monitors[0]
