@@ -1,0 +1,73 @@
+name: Bug Report
+description: Report a bug or unexpected behaviour in the project.
+labels: [bug]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thanks for taking the time to report a bug!
+        Please fill out the details below so we can investigate.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Brief Summary
+      description: A short description of the bug.
+      placeholder: "Example: App crashes when clicking Start"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What route did you call if any?
+      description: What full route, if none skip
+      placeholder: "/api/stats"
+    validations:
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behaviour
+      description: What should have happened?
+      placeholder: "The app should save my settings without an error."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behaviour
+      description: What actually happened?
+      placeholder: "The app froze for 10 seconds and crashed."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where did this occur?
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - iOS (shortcut)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Paste the section of restshutdown.log here containing the issue:
+      render: shell
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have searched existing issues to avoid duplicates.
+          required: true
