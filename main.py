@@ -28,7 +28,7 @@ logging.basicConfig(
     format='%(asctime)s - %(message)s',
     datefmt='%d/%m/%y %H:%M',
     handlers=[
-        logging.FileHandler('restshutdown.log'),
+        logging.FileHandler('LANControl.log'),
         logging.StreamHandler()
     ]
 )
@@ -133,7 +133,7 @@ def register_mdns_service():
 
 def simpleLog(text):
     with open(rf'{simpleLogLoc}', 'a') as f:
-        f.write(text)
+        f.write(text + "\n")
 
 def sendWebhook(text):
     webhook = DiscordWebhook(url=WEBHOOK_URL, 
@@ -409,6 +409,36 @@ def screenshot():
             "error": str(e)
         })
 
+@app.route('/api/status', methods=['GET'])
+@require_lancontrol
+def apiStatus():
+    client_ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent')
+    simpleLog(f'{datetime.now()} | /api/status called from {client_ip}. Headers: {user_agent}')
+
+    return jsonify({
+        "success": True,
+        "data": "API is running"
+    })
+
+@app.route('/api/lock')
+@require_lancontrol
+def lockUser():
+    client_ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent')
+    simpleLog(f'{datetime.now()} | /api/status called from {client_ip}. Headers: {user_agent}')
+
+    try:
+        os.system('rundll32.exe user32.dll,LockWorkStation')
+        return jsonify({
+            "success": True,
+            "data": "PC Locked."
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "data": f"Failed to lock: {e}"
+        })
 
 
 logger.info("Initializing application")

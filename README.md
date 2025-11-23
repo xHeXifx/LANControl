@@ -38,6 +38,8 @@ Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one o
 | `/api/abortshutdown` | GET | Cancel a scheduled shutdown |
 | `/api/stats` | GET | Get (most) system statistics |
 | `/api/screenshot` | GET | Get a full screenshot from your PC |
+| `/api/status` | GET | Returns the API status |
+| `/api/lock` | GET | Calls the user32.dll to lock the PC. |
 
 ## Notifactions and logging
 
@@ -45,7 +47,7 @@ Each api route calls to discords webhooks when used, your webhook url gets set i
 
 2 seperate logs are stored. 
 
-**restshutdown.log** in the files location stores detailed logs on pretty much everything from the server spinning up to routes being called. 
+**LANControl.log** in the files location stores detailed logs on pretty much everything from the server spinning up to routes being called. 
 
 The simpleLog in .env provides simple logs saying when routes are called along with the IP and headers of the client that requested.
 
