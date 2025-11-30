@@ -18,7 +18,7 @@
 
 ## How to setup
 
-1. Run ```git pull https://github.com/xHeXifx/lancontrol``` or download from github site
+1. Run ```git clone https://github.com/xHeXifx/lancontrol``` or download from github site
 2. Run ```pip install -r requirements.txt```
 3. Fill in the values in .env
 4. Run main.py, if you want the window to be hidden change extension to .pyw
