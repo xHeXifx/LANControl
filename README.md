@@ -16,9 +16,16 @@
   </p>
 </div>
 
+## Notes specific to MacOS
+
+- I use the newest MacOS 26, havent tested on other versions so may not work on all versions
+- ```/api/shutdown``` and ```/api/abortshutdown``` are deprecated as shutting down via CLI on mac requires superuser.
+- ```/api/lock``` has been changed to ```/api/sleep``` as the most efficient way of locking the system via CLI is to call a sleep.
+- For ```/api/screenshot``` to work, you'll need to run it at least once at the system to allow the program to take screenshots. Try run it and the first time you'll get a permissions popup.
+
 ## How to setup
 
-1. Run ```git pull https://github.com/xHeXifx/lancontrol``` or download from github site
+1. Run ```git clone https://github.com/xHeXifx/lancontrol --branch MacOS``` or download from github site
 2. Run ```pip install -r requirements.txt```
 3. Fill in the values in .env
 4. Run main.py, if you want the window to be hidden change extension to .pyw
@@ -27,25 +34,23 @@ For ease of use i made an apple shortcut to call the routes, using mDNS over IPV
 
 ## How to use
 
-Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For futher information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
+Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For further information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
 
 
 ## Avalible Routes
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/shutdown` | GET | Schedule system shutdown in 20 seconds |
-| `/api/abortshutdown` | GET | Cancel a scheduled shutdown |
 | `/api/stats` | GET | Get (most) system statistics |
 | `/api/screenshot` | GET | Get a full screenshot from your PC |
 | `/api/status` | GET | Returns the API status |
-| `/api/lock` | GET | Calls the user32.dll to lock the PC. |
+| `/api/sleep` | GET | Calls the pmset to sleep and lock the PC. |
 
-## Notifactions and logging
+## Notifications and logging
 
 Each api route calls to discords webhooks when used, your webhook url gets set in the .env and states what IP called the route.
 
-2 seperate logs are stored. 
+2 separate logs are stored. 
 
 **LANControl.log** in the files location stores detailed logs on pretty much everything from the server spinning up to routes being called. 
 
@@ -54,7 +59,7 @@ The simpleLog in .env provides simple logs saying when routes are called along w
 
 ## How to parse returned data
 
-Data is returned extreamly simply using flasks jsonify, each request will return 2 keys: success and data.
+Data is returned extremely simply using flasks jsonify, each request will return 2 keys: success and data.
 
 Structure looks as follows:
 

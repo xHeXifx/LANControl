@@ -194,58 +194,19 @@ def require_lancontrol(f):
 
 @app.route('/api/shutdown')
 @require_lancontrol
-def shutdown():
-    client_ip = request.remote_addr
-    user_agent = request.headers.get('User-Agent')
-    logger.info(f"SHUTDOWN requested from {client_ip}")
-    
-    try:
-        sendWebhook(f"System shutdown called from {client_ip}")
-        
-        logger.info("Executing shutdown")
-        os.system('shutdown /s /t 20')
+def shutdowndep():
+    return jsonify({
+        "success": False,
+        "data": "/api/shutdown is deprecated on MacOS systems."
+    })
 
-        logger.info("Discord notification sent")
-        
-        simpleLog(f'{datetime.now()} | /api/shutdown called from {client_ip}. Headers: {user_agent}')
-
-        logger.info("Shutdown initiated")
-        return jsonify({
-            "success": True,
-            "data": "Shutdown scheduled for 20 seconds."
-        })
-    except Exception as e:
-        logger.info(f"Shutdown failed: {str(e)[:30]}...")
-        return jsonify({
-            "success": False,
-            "data": f"Failed to run shutdown: {e}"
-        })
-    
 @app.route('/api/abortshutdown')
 @require_lancontrol
-def abortShutdown():
-    client_ip = request.remote_addr
-    user_agent = request.headers.get('User-Agent')
-    try:
-        sendWebhook(f"Shutdown aborted. Called from {client_ip}")
-        
-        logger.info('Aborting shutdown')
-        os.system('shutdown /a')
-        
-        logger.info('Discord abort notifaction sent.')
-        simpleLog(f'{datetime.now()} | /api/abortshutdown called from {client_ip}. Headers: {user_agent}')
-        logger.info('Shutdown aborted.')
-        
-        return jsonify({
-            "success": True,
-            "data": "Shutdown aborted."
-        })
-    except Exception as e:
-        logger.info(f"Failed to abort shutdown: {e}")
-        return jsonify({
-            "success": False,
-            "data": f"Failed to abort shutdown: {e}"
-        })
+def shutdowndep():
+    return jsonify({
+        "success": False,
+        "data": "/api/abortshutdown is deprecated on MacOS systems."
+    })
 
 @app.route('/api/stats')
 @require_lancontrol
@@ -421,7 +382,7 @@ def apiStatus():
         "data": "API is running"
     })
 
-@app.route('/api/lock')
+@app.route('/api/sleep')
 @require_lancontrol
 def lockUser():
     client_ip = request.remote_addr
@@ -429,15 +390,15 @@ def lockUser():
     simpleLog(f'{datetime.now()} | /api/status called from {client_ip}. Headers: {user_agent}')
 
     try:
-        os.system('rundll32.exe user32.dll,LockWorkStation')
+        os.system('pmset displaysleepnow')
         return jsonify({
             "success": True,
-            "data": "PC Locked."
+            "data": "PC Slept."
         })
     except Exception as e:
         return jsonify({
             "success": False,
-            "data": f"Failed to lock: {e}"
+            "data": f"Failed to sleep: {e}"
         })
 
 
