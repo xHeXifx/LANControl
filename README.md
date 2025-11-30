@@ -27,7 +27,7 @@ For ease of use i made an apple shortcut to call the routes, using mDNS over IPV
 
 ## How to use
 
-Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For futher information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
+Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one of the routes below and it'll return the data. Your request **MUST** contain the header LANControl with value True otherwise you'll get a success false and invalid header error. For further information of parsing data read [How to parse returned data](#how-to-parse-returned-data)
 
 
 ## Avalible Routes
@@ -41,11 +41,11 @@ Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one o
 | `/api/status` | GET | Returns the API status |
 | `/api/lock` | GET | Calls the user32.dll to lock the PC. |
 
-## Notifactions and logging
+## Notifications and logging
 
 Each api route calls to discords webhooks when used, your webhook url gets set in the .env and states what IP called the route.
 
-2 seperate logs are stored. 
+2 separate logs are stored. 
 
 **LANControl.log** in the files location stores detailed logs on pretty much everything from the server spinning up to routes being called. 
 
@@ -54,7 +54,7 @@ The simpleLog in .env provides simple logs saying when routes are called along w
 
 ## How to parse returned data
 
-Data is returned extreamly simply using flasks jsonify, each request will return 2 keys: success and data.
+Data is returned extremely simply using flasks jsonify, each request will return 2 keys: success and data.
 
 Structure looks as follows:
 
