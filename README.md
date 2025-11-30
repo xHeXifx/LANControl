@@ -44,7 +44,7 @@ Pretty simple, call a GET request to `http://lancontrol.local:{port}` with one o
 | `/api/stats` | GET | Get (most) system statistics |
 | `/api/screenshot` | GET | Get a full screenshot from your PC |
 | `/api/status` | GET | Returns the API status |
-| `/api/sleep` | GET | Calls the pmset to sleep and lock the PC. |
+| `/api/lock` | GET | Calls the pmset to sleep and lock the PC. |
 
 ## Notifications and logging
 
