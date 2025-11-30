@@ -382,7 +382,7 @@ def apiStatus():
         "data": "API is running"
     })
 
-@app.route('/api/sleep')
+@app.route('/api/lock')
 @require_lancontrol
 def lockUser():
     client_ip = request.remote_addr

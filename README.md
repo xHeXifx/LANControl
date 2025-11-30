@@ -20,7 +20,7 @@
 
 - I use the newest MacOS 26, havent tested on other versions so may not work on all versions
 - ```/api/shutdown``` and ```/api/abortshutdown``` are deprecated as shutting down via CLI on mac requires superuser.
-- ```/api/lock``` has been changed to ```/api/sleep``` as the most efficient way of locking the system via CLI is to call a sleep.
+- ```/api/lock``` sleeps instead of locking as the most efficient way of locking the system via CLI is to call a sleep.
 - For ```/api/screenshot``` to work, you'll need to run it at least once at the system to allow the program to take screenshots. Try run it and the first time you'll get a permissions popup.
 
 ## How to setup
